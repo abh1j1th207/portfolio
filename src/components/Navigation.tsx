@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { PROFILE, NAV } from "@/lib/data";
 import { scrollToTarget } from "@/lib/scroll";
 import { useScrollProgress } from "@/lib/hooks";
@@ -120,18 +121,25 @@ export function Navigation() {
         className="fixed top-0 left-0 right-0 z-40 px-[var(--gutter)] pt-4 pb-3 transition-all duration-300"
       >
         <div className="max-w-[1320px] mx-auto flex items-center justify-between">
-          {/* Left: initials mark + full name */}
+          {/* Left: favicon logo mark + full name */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => scrollToTarget("#hero")}
               aria-label="Scroll to top"
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs tracking-wider transition-all duration-500 hover:rotate-[360deg] ${
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 ${
                 scrolled
-                  ? "bg-[#0d0d0d] text-white shadow-md border border-[#0d0d0d]"
-                  : "bg-transparent text-[#0d0d0d] border border-[#0d0d0d]"
+                  ? "bg-white/90 backdrop-blur-md shadow-md border border-[#0d0d0d]/10"
+                  : "bg-white/60 backdrop-blur-sm border border-[#0d0d0d]/10"
               }`}
             >
-              {PROFILE.initials}
+              <Image
+                src="/favicon.png"
+                alt="Logo"
+                width={26}
+                height={26}
+                className="w-[26px] h-[26px] object-contain select-none"
+                priority
+              />
             </button>
 
             <span
@@ -212,7 +220,16 @@ export function Navigation() {
         aria-hidden={!mobileMenuOpen}
       >
         <div className="flex items-center justify-between pt-2">
-          <span className="font-mono text-xs text-[#77756f]">MENU — NAVIGATION</span>
+          <div className="flex items-center gap-2.5">
+            <Image
+              src="/favicon.png"
+              alt="Logo"
+              width={22}
+              height={22}
+              className="w-[22px] h-[22px] object-contain"
+            />
+            <span className="font-mono text-xs text-[#77756f]">MENU — NAVIGATION</span>
+          </div>
           <button
             onClick={() => setMobileMenuOpen(false)}
             className="w-10 h-10 rounded-full border border-[#0d0d0d] flex items-center justify-center text-xs font-bold"

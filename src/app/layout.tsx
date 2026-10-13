@@ -63,6 +63,22 @@ export const metadata: Metadata = {
     title: "Abhijith C — Full-Stack & Frontend Developer",
     description: "Enterprise web applications, ERPs, and SPAs.",
     images: ["/og.jpg"]
+  },
+  icons: {
+    icon: [
+      {
+        url: "/favicon.png",
+        media: "(prefers-color-scheme: light)",
+        type: "image/png"
+      },
+      {
+        url: "/favicon-light.png",
+        media: "(prefers-color-scheme: dark)",
+        type: "image/png"
+      }
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png"
   }
 };
 
@@ -76,6 +92,31 @@ export default function RootLayout({
       lang="en"
       className={`${interTight.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var m = window.matchMedia('(prefers-color-scheme: dark)');
+                  function updateIcon(e) {
+                    var isDark = e.matches;
+                    var links = document.querySelectorAll("link[rel*='icon']");
+                    links.forEach(function(link) {
+                      if (link.getAttribute('type') === 'image/png') {
+                        link.href = isDark ? '/favicon-light.png' : '/favicon.png';
+                      }
+                    });
+                  }
+                  if (m.matches) updateIcon(m);
+                  if (m.addEventListener) m.addEventListener('change', updateIcon);
+                  else if (m.addListener) m.addListener(updateIcon);
+                } catch(e) {}
+              })();
+            `
+          }}
+        />
+      </head>
       <body className="antialiased bg-[#f4f2ee] text-[#0d0d0d] selection:bg-[#0d0d0d] selection:text-[#f4f2ee]">
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>

@@ -8,7 +8,8 @@ export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [hasEnded, setHasEnded] = useState(false);
   const [showPingRing, setShowPingRing] = useState(false);
   const [videoSrc, setVideoSrc] = useState<string>("/hero/hero.mp4?v=v4_ios_clean");
   const [mounted, setMounted] = useState(false);
@@ -33,30 +34,41 @@ export function Hero() {
     const video = videoRef.current;
     if (!video) return;
 
-    // 1. Attempt autoplay with sound immediately
+    // Start video with sound immediately from 0.56s (speech beginning)
+    try {
+      if (video.currentTime < 0.56) {
+        video.currentTime = 0.56;
+      }
+    } catch {}
+
     video.muted = false;
     const playPromise = video.play();
 
     let removeListeners: (() => void) | null = null;
 
+    const onPlaySuccess = () => {
+      setIsMuted(false);
+      setShowPingRing(false);
+      if (removeListeners) {
+        removeListeners();
+        removeListeners = null;
+      }
+    };
+
     if (playPromise !== undefined) {
       playPromise
-        .then(() => {
-          // Autoplay with sound was allowed by browser
-          setIsMuted(false);
-          setShowPingRing(false);
-        })
+        .then(onPlaySuccess)
         .catch(() => {
-          // Blocked by browser autoplay policy -> fallback to muted autoplay
+          // If the browser policy temporarily blocks sound before interaction,
+          // keep video playing and automatically unmute on ANY user presence or activity
+          // (such as moving the mouse, scrolling, wheel, or touching anywhere)
           video.muted = true;
           video.play().catch(() => {});
           setIsMuted(true);
           setShowPingRing(true);
 
-          // 2. Unlock sound on first user gesture anywhere on the page
-          const handleFirstInteraction = (e: Event) => {
-            // If user clicked directly on the sound button, let toggleSound handle it
-            const target = e.target as HTMLElement | null;
+          const attemptAutoUnmute = (e?: Event) => {
+            const target = e?.target as HTMLElement | null;
             if (target?.closest?.("#hero-sound-btn")) {
               cleanup();
               return;
@@ -67,24 +79,36 @@ export function Hero() {
                 videoRef.current.currentTime = 0.56;
               }
               videoRef.current.muted = false;
-              videoRef.current.play().catch(() => {});
-              setIsMuted(false);
-              setShowPingRing(false);
+              videoRef.current
+                .play()
+                .then(() => {
+                  onPlaySuccess();
+                })
+                .catch(() => {
+                  // Keep listening until permission is unlocked
+                });
             }
-            cleanup();
           };
 
           const cleanup = () => {
-            window.removeEventListener("pointerdown", handleFirstInteraction);
-            window.removeEventListener("keydown", handleFirstInteraction);
-            window.removeEventListener("touchstart", handleFirstInteraction);
+            window.removeEventListener("mousemove", attemptAutoUnmute);
+            window.removeEventListener("pointermove", attemptAutoUnmute);
+            window.removeEventListener("wheel", attemptAutoUnmute);
+            window.removeEventListener("scroll", attemptAutoUnmute);
+            window.removeEventListener("pointerdown", attemptAutoUnmute);
+            window.removeEventListener("touchstart", attemptAutoUnmute);
+            window.removeEventListener("keydown", attemptAutoUnmute);
           };
 
           removeListeners = cleanup;
 
-          window.addEventListener("pointerdown", handleFirstInteraction, { passive: true });
-          window.addEventListener("keydown", handleFirstInteraction, { passive: true });
-          window.addEventListener("touchstart", handleFirstInteraction, { passive: true });
+          window.addEventListener("mousemove", attemptAutoUnmute, { passive: true });
+          window.addEventListener("pointermove", attemptAutoUnmute, { passive: true });
+          window.addEventListener("wheel", attemptAutoUnmute, { passive: true });
+          window.addEventListener("scroll", attemptAutoUnmute, { passive: true });
+          window.addEventListener("pointerdown", attemptAutoUnmute, { passive: true });
+          window.addEventListener("touchstart", attemptAutoUnmute, { passive: true });
+          window.addEventListener("keydown", attemptAutoUnmute, { passive: true });
         });
     }
 
@@ -109,7 +133,8 @@ export function Hero() {
             setIsPlaying(false);
           }
         } else {
-          if (video.paused) {
+          // Only auto-resume if it hasn't finished its initial one-time play
+          if (video.paused && !video.ended && !hasEnded) {
             video.play().catch(() => {});
             setIsPlaying(true);
           }
@@ -120,28 +145,32 @@ export function Hero() {
 
     observer.observe(heroEl);
     return () => observer.disconnect();
-  }, []);
+  }, [hasEnded]);
 
-  const toggleSound = () => {
+  const togglePlay = () => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (video.muted) {
-      // Unmute instantly on a single click and skip pre-roll silence directly to 0.56s where speech begins
-      if (video.currentTime > 1.2 || video.currentTime < 0.56) {
+    if (video.paused || video.ended || hasEnded) {
+      // Replay from speech start if video finished or near the end
+      if (hasEnded || video.ended || video.currentTime >= video.duration - 0.5) {
         video.currentTime = 0.56;
       }
       video.muted = false;
-      video.play().catch(() => {});
       setIsMuted(false);
-      setShowPingRing(false);
+      video
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+          setHasEnded(false);
+          setShowPingRing(false);
+        })
+        .catch(() => {});
     } else {
-      video.muted = true;
-      setIsMuted(true);
+      video.pause();
+      setIsPlaying(false);
     }
   };
-
-  void isPlaying;
 
   return (
     <section
@@ -201,10 +230,21 @@ export function Hero() {
           <video
             key={videoSrc}
             ref={videoRef}
-            muted
-            loop
+            autoPlay
             playsInline
             preload="auto"
+            onPlay={() => {
+              setIsPlaying(true);
+              setHasEnded(false);
+            }}
+            onPause={() => {
+              setIsPlaying(false);
+            }}
+            onEnded={() => {
+              setIsPlaying(false);
+              setHasEnded(true);
+              setShowPingRing(true);
+            }}
             className="w-full h-full object-contain pointer-events-none select-none relative"
             style={{ zIndex: 10 }}
           >
@@ -214,7 +254,7 @@ export function Hero() {
             />
           </video>
 
-          {/* Sound button */}
+          {/* Play/Pause Button */}
           <div style={{ position: "absolute", bottom: "1rem", right: "1rem", zIndex: 30 }}>
             <div style={{ position: "relative" }}>
               {showPingRing && (
@@ -234,7 +274,7 @@ export function Hero() {
               <button
                 id="hero-sound-btn"
                 type="button"
-                onClick={toggleSound}
+                onClick={togglePlay}
                 style={{
                   position: "relative",
                   width: 46,
@@ -250,9 +290,9 @@ export function Hero() {
                   cursor: "pointer",
                   transition: "transform 0.2s",
                 }}
-                aria-label={isMuted ? "Unmute video introduction" : "Mute video introduction"}
+                aria-label={!isPlaying || hasEnded ? "Play video introduction" : "Pause video introduction"}
               >
-                {isMuted ? (
+                {!isPlaying || hasEnded ? (
                   <svg
                     width="14"
                     height="14"
