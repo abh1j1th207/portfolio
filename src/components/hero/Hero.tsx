@@ -10,59 +10,35 @@ export function Hero() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [showPingRing, setShowPingRing] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string>("/hero/hero.mp4?v=v4_ios_clean");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
+    // Apple devices (iPhone, iPad, Safari) do not support VP9 alpha in WebM and render transparent pixels as solid black.
+    // Defaulting to hero.mp4 provides a clean, pre-composited #f4f2ee background with zero black box.
+    // For Chromium/Firefox/Edge on Windows/Android/Mac, we upgrade to hero.webm for native alpha transparency.
+    const isApple =
+      typeof navigator !== "undefined" &&
+      (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)));
+
+    if (!isApple) {
+      setVideoSrc("/hero/hero.webm?v=v4_clean");
+    }
   }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Attempt autoplay with sound
-    video.muted = false;
-    const playPromise = video.play();
-
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          setIsMuted(false);
-          setShowPingRing(false);
-        })
-        .catch(() => {
-          video.muted = true;
-          video.play().catch(() => {});
-          setIsMuted(true);
-          setShowPingRing(true);
-        });
-    }
-
-    // Unlock sound on first user gesture
-    const unlockSound = () => {
-      if (videoRef.current && videoRef.current.muted) {
-        videoRef.current.muted = false;
-        videoRef.current.play().catch(() => {});
-        setIsMuted(false);
-        setShowPingRing(false);
-      }
-      cleanupListeners();
-    };
-
-    const cleanupListeners = () => {
-      window.removeEventListener("pointerdown", unlockSound);
-      window.removeEventListener("keydown", unlockSound);
-      window.removeEventListener("touchend", unlockSound);
-    };
-
-    window.addEventListener("pointerdown", unlockSound, { once: true });
-    window.addEventListener("keydown", unlockSound, { once: true });
-    window.addEventListener("touchend", unlockSound, { once: true });
-
-    return () => {
-      cleanupListeners();
-    };
-  }, []);
+    // Autoplay muted by default for smooth cross-browser compliance
+    video.muted = true;
+    setIsMuted(true);
+    setShowPingRing(true);
+    video.play().catch(() => {});
+  }, [videoSrc]);
 
   // Pause when less than 35% of the hero is visible
   useEffect(() => {
@@ -92,14 +68,20 @@ export function Hero() {
   }, []);
 
   const toggleSound = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.muted) {
-      videoRef.current.muted = false;
-      videoRef.current.play().catch(() => {});
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (video.muted) {
+      // Unmute instantly on a single click and skip pre-roll silence directly to 0.56s where speech begins
+      if (video.currentTime > 1.2 || video.currentTime < 0.56) {
+        video.currentTime = 0.56;
+      }
+      video.muted = false;
+      video.play().catch(() => {});
       setIsMuted(false);
       setShowPingRing(false);
     } else {
-      videoRef.current.muted = true;
+      video.muted = true;
       setIsMuted(true);
     }
   };
@@ -156,13 +138,13 @@ export function Hero() {
           className="relative max-w-full"
           style={{
             width: "auto",
-            height: "clamp(340px, 58svh, 960px)",
+            height: "clamp(280px, 50svh, 920px)",
             maxWidth: "min(90vw, 768px)",
             aspectRatio: "768 / 960",
           }}
         >
           <video
-            key="hero-video-v3"
+            key={videoSrc}
             ref={videoRef}
             muted
             loop
@@ -171,8 +153,10 @@ export function Hero() {
             className="w-full h-full object-contain pointer-events-none select-none relative"
             style={{ zIndex: 10 }}
           >
-            <source src="/hero/hero.webm?v=v3_new_intro" type="video/webm" />
-            <source src="/hero/hero.mp4?v=v3_new_intro" type="video/mp4" />
+            <source
+              src={videoSrc}
+              type={videoSrc.includes(".webm") ? "video/webm" : "video/mp4"}
+            />
           </video>
 
           {/* Sound button */}
@@ -193,6 +177,7 @@ export function Hero() {
                 />
               )}
               <button
+                type="button"
                 onClick={toggleSound}
                 style={{
                   position: "relative",

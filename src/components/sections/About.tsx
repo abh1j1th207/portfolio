@@ -7,10 +7,20 @@ import { PROFILE } from "@/lib/data";
 export function About() {
   const [isFlipped, setIsFlipped] = useState(false);
   const cardContainerRef = useRef<HTMLDivElement>(null);
-  const [rotationAngle, setRotationAngle] = useState(0);
+  const pendulumRef = useRef<HTMLDivElement>(null);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   // Physics-based pendulum swing with spring damping
   useEffect(() => {
+    // On touch/mobile devices, disable JS mouse physics entirely to prevent iOS Safari 120Hz jitter/vibration
+    const isTouch =
+      window.matchMedia("(pointer: coarse)").matches ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0;
+
+    setIsMobileDevice(isTouch);
+    if (isTouch) return;
+
     let currentAngle = 0;
     let targetAngle = 0;
     let velocity = 0;
@@ -24,21 +34,24 @@ export function About() {
       const rect = cardContainerRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const dist = (e.clientX - centerX) / (window.innerWidth / 2);
-      targetAngle = Math.max(-14, Math.min(14, dist * 14));
+      targetAngle = Math.max(-12, Math.min(12, dist * 12));
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     const updatePhysics = () => {
-      idleTime += 0.025;
-      const idleSway = Math.sin(idleTime) * 1.5;
+      idleTime += 0.02;
+      const idleSway = Math.sin(idleTime) * 1.2;
       const effectiveTarget = targetAngle + idleSway;
 
       const force = (effectiveTarget - currentAngle) * springK;
       velocity = velocity * damping + force;
       currentAngle += velocity;
 
-      setRotationAngle(currentAngle);
+      // Mutate ref transform directly to avoid React re-renders and transition conflicts
+      if (pendulumRef.current) {
+        pendulumRef.current.style.transform = `rotate(${currentAngle.toFixed(2)}deg)`;
+      }
       animId = requestAnimationFrame(updatePhysics);
     };
 
@@ -93,6 +106,19 @@ export function About() {
             rgba(180,180,180,0.5) 70%,
             rgba(255,255,255,0.2) 100%
           );
+        }
+        @keyframes gentleLanyardSway {
+          0%, 100% {
+            transform: rotate(-1.5deg);
+          }
+          50% {
+            transform: rotate(1.5deg);
+          }
+        }
+        .lanyard-sway-mobile {
+          animation: gentleLanyardSway 5s ease-in-out infinite;
+          transform-origin: top center;
+          will-change: transform;
         }
       `}</style>
 
@@ -180,10 +206,10 @@ export function About() {
 
             {/* Pendulum Swinging Wrapper */}
             <div
-              className="relative mt-1 origin-top transition-transform duration-75 ease-out"
-              style={{
-                transform: `rotate(${rotationAngle}deg)`
-              }}
+              ref={pendulumRef}
+              className={`relative mt-1 origin-top ${
+                isMobileDevice ? "lanyard-sway-mobile" : ""
+              }`}
             >
               {/* 3D Flip Card Container */}
               <div
@@ -191,9 +217,17 @@ export function About() {
                 role="button"
                 aria-label="Developer ID Card. Press Enter to flip."
                 onKeyDown={handleKeyDown}
-                onClick={() => setIsFlipped(!isFlipped)}
-                onMouseEnter={() => setIsFlipped(true)}
-                onMouseLeave={() => setIsFlipped(false)}
+                onClick={() => setIsFlipped((prev) => !prev)}
+                onMouseEnter={() => {
+                  if (!isMobileDevice && window.matchMedia("(hover: hover)").matches) {
+                    setIsFlipped(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (!isMobileDevice && window.matchMedia("(hover: hover)").matches) {
+                    setIsFlipped(false);
+                  }
+                }}
                 className="perspective-1000 cursor-pointer w-[300px] max-w-[calc(100vw-3rem)] h-[404px] outline-none"
               >
                 <div
