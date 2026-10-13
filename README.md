@@ -160,5 +160,5 @@ Every datum on this website adheres to a strict anti-hallucination standard:
 ---
 
 <div align="center">
-  <sub>Crafted for Abhijith C · Built with precision, care, and quiet confidence.</sub>
+  <sub>Crafted by ME for MYSELF · Built with precision, care, and quiet confidence.</sub>
 </div>
