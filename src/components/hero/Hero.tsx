@@ -33,11 +33,66 @@ export function Hero() {
     const video = videoRef.current;
     if (!video) return;
 
-    // Autoplay muted by default for smooth cross-browser compliance
-    video.muted = true;
-    setIsMuted(true);
-    setShowPingRing(true);
-    video.play().catch(() => {});
+    // 1. Attempt autoplay with sound immediately
+    video.muted = false;
+    const playPromise = video.play();
+
+    let removeListeners: (() => void) | null = null;
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // Autoplay with sound was allowed by browser
+          setIsMuted(false);
+          setShowPingRing(false);
+        })
+        .catch(() => {
+          // Blocked by browser autoplay policy -> fallback to muted autoplay
+          video.muted = true;
+          video.play().catch(() => {});
+          setIsMuted(true);
+          setShowPingRing(true);
+
+          // 2. Unlock sound on first user gesture anywhere on the page
+          const handleFirstInteraction = (e: Event) => {
+            // If user clicked directly on the sound button, let toggleSound handle it
+            const target = e.target as HTMLElement | null;
+            if (target?.closest?.("#hero-sound-btn")) {
+              cleanup();
+              return;
+            }
+
+            if (videoRef.current && videoRef.current.muted) {
+              if (videoRef.current.currentTime > 1.2 || videoRef.current.currentTime < 0.56) {
+                videoRef.current.currentTime = 0.56;
+              }
+              videoRef.current.muted = false;
+              videoRef.current.play().catch(() => {});
+              setIsMuted(false);
+              setShowPingRing(false);
+            }
+            cleanup();
+          };
+
+          const cleanup = () => {
+            window.removeEventListener("pointerdown", handleFirstInteraction);
+            window.removeEventListener("keydown", handleFirstInteraction);
+            window.removeEventListener("touchstart", handleFirstInteraction);
+          };
+
+          removeListeners = cleanup;
+
+          window.addEventListener("pointerdown", handleFirstInteraction, { passive: true });
+          window.addEventListener("keydown", handleFirstInteraction, { passive: true });
+          window.addEventListener("touchstart", handleFirstInteraction, { passive: true });
+        });
+    }
+
+    return () => {
+      if (removeListeners) {
+        removeListeners();
+      }
+    };
   }, [videoSrc]);
 
   // Pause when less than 35% of the hero is visible
@@ -177,6 +232,7 @@ export function Hero() {
                 />
               )}
               <button
+                id="hero-sound-btn"
                 type="button"
                 onClick={toggleSound}
                 style={{
