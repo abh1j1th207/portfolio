@@ -194,7 +194,7 @@ export function About() {
                 onClick={() => setIsFlipped(!isFlipped)}
                 onMouseEnter={() => setIsFlipped(true)}
                 onMouseLeave={() => setIsFlipped(false)}
-                className="perspective-1000 cursor-pointer w-[300px] h-[404px] outline-none"
+                className="perspective-1000 cursor-pointer w-[300px] max-w-[calc(100vw-3rem)] h-[404px] outline-none"
               >
                 <div
                   className={`w-full h-full relative preserve-3d transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${

@@ -102,7 +102,7 @@ export function Contact() {
           <div className="flex flex-wrap items-center gap-4">
             <a
               href={`mailto:${PROFILE.email}`}
-              className="text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#0d0d0d] underline underline-offset-8 decoration-[#0d0d0d]/30 hover:decoration-[#0d0d0d] transition-all"
+              className="text-lg sm:text-3xl md:text-4xl font-bold tracking-tight text-[#0d0d0d] underline underline-offset-8 decoration-[#0d0d0d]/30 hover:decoration-[#0d0d0d] transition-all break-all sm:break-normal"
             >
               {PROFILE.email}
             </a>
@@ -144,7 +144,7 @@ export function Contact() {
               href={PROFILE.github}
               target="_blank"
               rel="noreferrer"
-              className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1"
+              className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1 break-all sm:break-normal"
             >
               github.com/abh1j1th207 ↗
             </a>
@@ -158,7 +158,7 @@ export function Contact() {
               href={PROFILE.linkedin}
               target="_blank"
               rel="noreferrer"
-              className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1"
+              className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1 break-all sm:break-normal"
             >
               linkedin.com/in/a6h1j1th ↗
             </a>

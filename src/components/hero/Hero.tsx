@@ -135,11 +135,11 @@ export function Hero() {
 
       {/* Giant solid name — positioned at z-1, BEHIND the person */}
       <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden max-w-full px-2"
         style={{ zIndex: 1 }}
       >
         <span
-          className={`ghost-name text-[clamp(7rem,22vw,20rem)] uppercase text-center select-none transition-opacity duration-1000 ${
+          className={`ghost-name text-[clamp(4rem,18vw,20rem)] uppercase text-center select-none transition-opacity duration-1000 ${
             mounted ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -149,15 +149,15 @@ export function Hero() {
 
       {/* Video area — Person standing on z-10, IN FRONT OF the name */}
       <div
-        className="flex-1 flex items-center justify-center my-auto relative"
+        className="flex-1 flex items-center justify-center my-auto relative w-full px-2 overflow-hidden"
         style={{ zIndex: 10 }}
       >
         <div
-          className="relative"
+          className="relative max-w-full"
           style={{
             width: "auto",
-            height: "clamp(480px, 64svh, 96svh)",
-            maxHeight: "1040px",
+            height: "clamp(340px, 58svh, 960px)",
+            maxWidth: "min(90vw, 768px)",
             aspectRatio: "768 / 960",
           }}
         >

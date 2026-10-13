@@ -66,7 +66,7 @@ export function Skills() {
         {/* Grid + Sticky Inspector Panel Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
           {/* Periodic Table Grid: 8 columns desktop, 4 mobile */}
-          <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2.5">
+          <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-2.5">
             {SKILLS.map((skill, index) => {
               const col = index % 8;
               const row = Math.floor(index / 8);
@@ -81,7 +81,7 @@ export function Skills() {
                   type="button"
                   onMouseEnter={() => setInspectSkill(skill)}
                   onFocus={() => setInspectSkill(skill)}
-                  className={`group relative flex flex-col justify-between p-3 rounded-2xl text-left border transition-all duration-300 ${
+                  className={`group relative flex flex-col justify-between p-2 sm:p-3 rounded-2xl text-left border transition-all duration-300 ${
                     matchesFilter
                       ? "opacity-100 scale-100"
                       : "opacity-25 grayscale scale-95 pointer-events-none"

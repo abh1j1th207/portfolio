@@ -59,30 +59,34 @@ export function Achievements() {
   const [centeredCardIdx, setCenteredCardIdx] = useState(0);
   const [hasStartedScroll, setHasStartedScroll] = useState(false);
   const [maxDistance, setMaxDistance] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Dynamically calculate exact travel distance in pixels
   useEffect(() => {
-    const updateMaxDistance = () => {
-      const track = trackRef.current;
-      if (!track) return;
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
 
-      const viewportWidth = window.innerWidth;
-      const scrollWidth = track.scrollWidth;
-      // Ensure the end card and last achievement reach the right margin with comfortable breathing room
-      const distance = Math.max(0, scrollWidth - viewportWidth + 64);
-      setMaxDistance(distance);
+      if (!mobile && trackRef.current) {
+        const viewportWidth = window.innerWidth;
+        const scrollWidth = trackRef.current.scrollWidth;
+        const distance = Math.max(0, scrollWidth - viewportWidth + 64);
+        setMaxDistance(distance);
+      }
     };
 
-    updateMaxDistance();
-    window.addEventListener("resize", updateMaxDistance);
-    const timer = setTimeout(updateMaxDistance, 350);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    const timer = setTimeout(handleResize, 350);
     return () => {
-      window.removeEventListener("resize", updateMaxDistance);
+      window.removeEventListener("resize", handleResize);
       clearTimeout(timer);
     };
   }, []);
 
+  // Desktop pinned scroll handler
   useEffect(() => {
+    if (isMobile) return;
+
     const handleScroll = () => {
       const container = containerRef.current;
       const track = trackRef.current;
@@ -120,7 +124,29 @@ export function Achievements() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isMobile]);
+
+  // Mobile horizontal swipe track listener
+  const handleMobileTrackScroll = () => {
+    if (!isMobile || !trackRef.current) return;
+    const track = trackRef.current;
+    const cards = track.querySelectorAll(".achievement-card");
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    let minDistance = Infinity;
+    let nearestIdx = 0;
+
+    cards.forEach((card, idx) => {
+      const cardEl = card as HTMLElement;
+      const cardCenter = cardEl.offsetLeft + cardEl.offsetWidth / 2;
+      const dist = Math.abs(trackCenter - cardCenter);
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearestIdx = idx;
+      }
+    });
+
+    setCenteredCardIdx(nearestIdx);
+  };
 
   const scrollToCard = (index: number) => {
     const container = containerRef.current;
@@ -131,6 +157,13 @@ export function Achievements() {
     if (!cards[index]) return;
 
     const card = cards[index] as HTMLElement;
+
+    if (isMobile) {
+      card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      setCenteredCardIdx(index);
+      return;
+    }
+
     const viewportWidth = window.innerWidth;
     const cardCenterInTrack = card.offsetLeft + card.offsetWidth / 2;
     const desiredTranslateX = Math.max(
@@ -150,14 +183,20 @@ export function Achievements() {
     <section
       id="achievements"
       ref={containerRef}
-      className="relative bg-[#f4f2ee] border-t border-[#0d0d0d]/10"
+      className="relative bg-[#f4f2ee] border-t border-[#0d0d0d]/10 overflow-hidden"
       style={{
-        // 360svh gives relaxed, comfortable scroll pacing across all 5 milestones
-        height: "360svh"
+        // Desktop uses 360svh pinned scroll budget; mobile uses natural height without scroll-locking
+        height: isMobile ? "auto" : "360svh"
       }}
     >
-      {/* Sticky Fullscreen Pinned Container */}
-      <div className="sticky top-0 h-[100svh] w-full flex flex-col justify-between overflow-hidden py-8 sm:py-10">
+      {/* Container: Relative with top clearance on mobile, sticky on desktop */}
+      <div
+        className={`w-full flex flex-col justify-between ${
+          isMobile
+            ? "relative py-12 pt-24 pb-16"
+            : "sticky top-0 h-[100svh] overflow-hidden py-8 sm:py-10"
+        }`}
+      >
         {/* Header with Title, Stepper and Thin Progress Bar */}
         <div className="w-full max-w-[1320px] mx-auto px-[var(--gutter)] flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -171,9 +210,9 @@ export function Achievements() {
             </div>
 
             {/* Stepper pills and Prev / Next navigation */}
-            <div className="flex items-center gap-3 self-start sm:self-auto">
+            <div className="flex items-center gap-2 sm:gap-3 self-start sm:self-auto flex-wrap">
               {/* Card Index Pills */}
-              <div className="flex items-center gap-1.5 bg-white/80 backdrop-blur-sm border border-[#0d0d0d]/10 rounded-full p-1 shadow-xs">
+              <div className="flex items-center gap-1 bg-white/80 backdrop-blur-sm border border-[#0d0d0d]/10 rounded-full p-1 shadow-xs">
                 {ACHIEVEMENTS.map((_, i) => (
                   <button
                     key={i}
@@ -220,8 +259,8 @@ export function Achievements() {
             </div>
           </div>
 
-          {/* Thin Progress Bar in Header */}
-          <div className="w-full h-[2px] bg-[#0d0d0d]/10 rounded-full overflow-hidden">
+          {/* Thin Progress Bar in Header (Desktop) */}
+          <div className="w-full h-[2px] bg-[#0d0d0d]/10 rounded-full overflow-hidden hidden md:block">
             <div
               className="h-full bg-[#0d0d0d] transition-all duration-75 ease-out"
               style={{ width: `${scrollProgress * 100}%` }}
@@ -229,14 +268,23 @@ export function Achievements() {
           </div>
         </div>
 
-        {/* Horizontal Card Track */}
-        <div className="relative w-full overflow-hidden py-6 sm:py-8">
+        {/* Card Track: Native Touch Swipe on mobile, Pinned Transform on desktop */}
+        <div
+          ref={trackRef}
+          onScroll={handleMobileTrackScroll}
+          className={`relative w-full ${
+            isMobile
+              ? "overflow-x-auto snap-x snap-mandatory flex items-stretch gap-4 px-[var(--gutter)] py-6 scrollbar-none"
+              : "overflow-hidden py-6 sm:py-8"
+          }`}
+        >
           <div
-            ref={trackRef}
-            className="flex items-center gap-8 pl-[var(--gutter)] will-change-transform"
+            className={`flex items-stretch gap-4 sm:gap-8 will-change-transform ${
+              isMobile ? "w-max" : "pl-[var(--gutter)]"
+            }`}
             style={{
-              transform: `translateX(-${scrollProgress * maxDistance}px)`,
-              transition: "transform 0.08s cubic-bezier(0.16, 1, 0.3, 1)"
+              transform: isMobile ? "none" : `translateX(-${scrollProgress * maxDistance}px)`,
+              transition: isMobile ? "none" : "transform 0.08s cubic-bezier(0.16, 1, 0.3, 1)"
             }}
           >
             {ACHIEVEMENTS.map((item, idx) => {
@@ -246,20 +294,23 @@ export function Achievements() {
                 <div
                   key={item.id}
                   onClick={() => scrollToCard(idx)}
-                  className={`achievement-card shrink-0 rounded-[28px] bg-white p-7 sm:p-8 flex flex-col justify-between transition-all duration-500 cursor-pointer ${
-                    isNearest
+                  className={`achievement-card shrink-0 rounded-[28px] bg-white p-6 sm:p-8 flex flex-col justify-between transition-all duration-500 cursor-pointer ${
+                    isMobile
+                      ? "snap-center border border-[#0d0d0d]/10 shadow-[0_8px_24px_rgba(13,13,13,0.04)]"
+                      : isNearest
                       ? "-translate-y-3 shadow-[0_24px_50px_rgba(13,13,13,0.12)] border border-[#0d0d0d]/10"
                       : "translate-y-0 shadow-[0_8px_30px_rgba(13,13,13,0.04)] border border-[#0d0d0d]/5 hover:-translate-y-1"
                   }`}
                   style={{
-                    width: "clamp(340px, 38vw, 520px)",
-                    height: "clamp(260px, 34vh, 310px)"
+                    width: isMobile ? "min(82vw, 360px)" : "clamp(340px, 38vw, 520px)",
+                    height: isMobile ? "auto" : "clamp(260px, 34vh, 310px)",
+                    minHeight: isMobile ? "240px" : undefined
                   }}
                 >
-                  {/* Top: 72px Logo Tile + Index */}
-                  <div className="flex items-center justify-between">
+                  {/* Top: 64-72px Logo Tile + Index */}
+                  <div className="flex items-center justify-between mb-4">
                     <div
-                      className="w-[72px] h-[72px] rounded-2xl bg-[#f4f2ee] flex items-center justify-center relative p-2 shadow-inner"
+                      className="w-[60px] sm:w-[72px] h-[60px] sm:h-[72px] rounded-2xl bg-[#f4f2ee] flex items-center justify-center relative p-2 shadow-inner"
                       style={{
                         boxShadow: isNearest
                           ? `0 12px 30px ${item.glowColor || "rgba(13,13,13,0.1)"}`
@@ -269,7 +320,7 @@ export function Achievements() {
                       <TechLogo
                         name={item.platform}
                         brandKey={item.brandKey}
-                        size={48}
+                        size={40}
                         showGlow={isNearest}
                       />
                     </div>
@@ -280,7 +331,7 @@ export function Achievements() {
                   </div>
 
                   {/* Bottom: Left info & Right big count-up number */}
-                  <div className="flex items-end justify-between gap-4 pt-4 border-t border-[#0d0d0d]/10">
+                  <div className="flex items-end justify-between gap-3 pt-4 border-t border-[#0d0d0d]/10">
                     <div className="space-y-1 max-w-[65%]">
                       <h3 className="font-bold text-base sm:text-lg text-[#0d0d0d] tracking-tight">
                         {item.label}
@@ -293,8 +344,8 @@ export function Achievements() {
                       </p>
                     </div>
 
-                    <div className="font-mono text-3xl sm:text-4xl md:text-5xl font-black text-[#0d0d0d] tracking-tighter shrink-0 text-right">
-                      <CounterNumber item={item} isVisible={hasStartedScroll || idx === 0} />
+                    <div className="font-mono text-2xl sm:text-4xl md:text-5xl font-black text-[#0d0d0d] tracking-tighter shrink-0 text-right">
+                      <CounterNumber item={item} isVisible={hasStartedScroll || isMobile || idx === 0} />
                     </div>
                   </div>
                 </div>
@@ -303,10 +354,11 @@ export function Achievements() {
 
             {/* End Card: and counting → */}
             <div
-              className="shrink-0 rounded-[28px] border-2 border-dashed border-[#0d0d0d]/20 flex items-center justify-center px-10 text-[#77756f] font-mono text-sm tracking-wider uppercase mr-[var(--gutter)]"
+              className="shrink-0 rounded-[28px] border-2 border-dashed border-[#0d0d0d]/20 flex items-center justify-center px-8 sm:px-10 text-[#77756f] font-mono text-sm tracking-wider uppercase mr-[var(--gutter)]"
               style={{
-                width: "240px",
-                height: "clamp(260px, 34vh, 310px)"
+                width: isMobile ? "200px" : "240px",
+                height: isMobile ? "auto" : "clamp(260px, 34vh, 310px)",
+                minHeight: isMobile ? "240px" : undefined
               }}
             >
               and counting →
@@ -315,12 +367,12 @@ export function Achievements() {
         </div>
 
         {/* Footer Hint */}
-        <div className="w-full max-w-[1320px] mx-auto px-[var(--gutter)] flex items-center justify-between">
-          <span className="font-mono text-[10px] text-[#a9a6a0] uppercase tracking-widest hidden sm:inline">
-            CLICK ANY CARD OR PILL TO JUMP
+        <div className="w-full max-w-[1320px] mx-auto px-[var(--gutter)] flex items-center justify-between mt-2">
+          <span className="font-mono text-[10px] text-[#a9a6a0] uppercase tracking-widest">
+            {isMobile ? "SWIPE CARDS OR TAP PILLS" : "CLICK ANY CARD OR PILL TO JUMP"}
           </span>
           <span className="font-mono text-[10px] text-[#a9a6a0] uppercase tracking-widest ml-auto">
-            PINNED GALLERY · SCROLL DOWN TO ADVANCE
+            {isMobile ? "05 BENCHMARKS" : "PINNED GALLERY · SCROLL DOWN TO ADVANCE"}
           </span>
         </div>
       </div>
