@@ -119,22 +119,18 @@ export function Skills() {
                   </div>
 
                   {/* Centre: large 2-letter symbol */}
-                  <div className="my-auto text-center">
-                    <span className="font-mono text-xl sm:text-2xl font-bold tracking-tight block">
-                      {skill.symbol}
-                    </span>
-                  </div>
+                  <span className="my-auto text-center font-mono text-xl sm:text-2xl font-bold tracking-tight block">
+                    {skill.symbol}
+                  </span>
 
                   {/* Bottom: element name truncated cleanly */}
-                  <div className="w-full">
-                    <span
-                      className={`text-[11px] font-medium tracking-tight block truncate ${
-                        isInspected ? "text-white" : "text-[#0d0d0d]"
-                      }`}
-                    >
-                      {skill.name}
-                    </span>
-                  </div>
+                  <span
+                    className={`w-full text-[11px] font-medium tracking-tight block truncate ${
+                      isInspected ? "text-white" : "text-[#0d0d0d]"
+                    }`}
+                  >
+                    {skill.name}
+                  </span>
                 </button>
               );
             })}

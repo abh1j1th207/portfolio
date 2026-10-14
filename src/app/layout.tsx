@@ -143,6 +143,15 @@ export default function RootLayout({
     >
       <head>
         <JsonLd siteUrl={siteUrl} />
+        <link
+          rel="preload"
+          as="image"
+          href="/portrait-bust.webp"
+          type="image/webp"
+          fetchPriority="high"
+        />
+        <link rel="preconnect" href="https://va.vercel-scripts.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
