@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { PROFILE } from "@/lib/data";
 import { scrollToTarget } from "@/lib/scroll";
 
@@ -229,27 +228,13 @@ export function Hero() {
             aspectRatio: "768 / 960",
           }}
         >
-          {/* LCP Prioritized Poster Image - Paints instantly in initial render */}
-          <Image
-            src="/portrait-bust.webp"
-            alt="Portrait of Abhijith C, Full-Stack Developer"
-            fill
-            priority
-            fetchPriority="high"
-            sizes="(max-width: 768px) 90vw, 768px"
-            className="w-full h-full object-contain pointer-events-none select-none absolute inset-0"
-            style={{ zIndex: 5 }}
-          />
-
           <video
             key={videoSrc}
             ref={videoRef}
             autoPlay
             muted
             playsInline
-            preload="metadata"
-            poster="/portrait-bust.webp"
-            {...({ fetchpriority: "high" } as React.HTMLAttributes<HTMLVideoElement>)}
+            preload="auto"
             onPlay={() => {
               setIsPlaying(true);
               setHasEnded(false);
