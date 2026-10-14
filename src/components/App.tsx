@@ -11,7 +11,7 @@ import { Contact } from "./sections/Contact";
 
 export function App() {
   return (
-    <main className="relative w-full overflow-x-hidden min-h-screen bg-[#f4f2ee]">
+    <main id="main-content" className="relative w-full overflow-x-hidden min-h-screen bg-[#f4f2ee]">
       <Navigation />
       <Hero />
       <About />

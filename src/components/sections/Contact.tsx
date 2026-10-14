@@ -38,6 +38,7 @@ export function Contact() {
   return (
     <section
       id="contact"
+      aria-labelledby="contact-heading"
       className="relative pt-[var(--section-py)] pb-12 bg-[#f4f2ee] border-t border-[#0d0d0d]/10 overflow-hidden"
     >
       <style>{`
@@ -83,7 +84,10 @@ export function Contact() {
 
         {/* Large Hopping Heading */}
         <div className="space-y-2 mb-16 max-w-4xl">
-          <h2 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.05em] leading-[0.95] text-[#0d0d0d] select-none">
+          <h2
+            id="contact-heading"
+            className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.05em] leading-[0.95] text-[#0d0d0d] select-none"
+          >
             <div>
               <HoppingText text="Let's build" />
             </div>
@@ -143,7 +147,7 @@ export function Contact() {
             <a
               href={PROFILE.github}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1 break-all sm:break-normal"
             >
               github.com/abh1j1th207 ↗
@@ -157,7 +161,7 @@ export function Contact() {
             <a
               href={PROFILE.linkedin}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="font-bold text-base text-[#0d0d0d] hover:underline inline-flex items-center gap-1 break-all sm:break-normal"
             >
               linkedin.com/in/a6h1j1th ↗
@@ -172,7 +176,7 @@ export function Contact() {
           </div>
 
           <div className="flex items-center gap-6">
-            <span>Built with Next.js 15 · TypeScript · Tailwind CSS v4</span>
+            <span>Built with Next.js 16 · TypeScript · Tailwind CSS v4</span>
             <button
               onClick={() => scrollToTarget("#hero")}
               className="text-[#0d0d0d] font-bold hover:underline"

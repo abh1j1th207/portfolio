@@ -1,13 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { SmoothScrollProvider } from "@/lib/scroll";
+import { JsonLd } from "@/components/seo/JsonLd";
 
 const interTight = localFont({
   src: "../fonts/InterTight-Variable.woff2",
   variable: "--font-inter-tight",
-  display: "swap"
+  display: "swap",
+  preload: true,
 });
 
 const instrumentSerif = localFont({
@@ -15,85 +18,131 @@ const instrumentSerif = localFont({
     {
       path: "../fonts/InstrumentSerif-Regular.woff2",
       weight: "400",
-      style: "normal"
+      style: "normal",
     },
     {
       path: "../fonts/InstrumentSerif-Italic.woff2",
       weight: "400",
-      style: "italic"
-    }
+      style: "italic",
+    },
   ],
   variable: "--font-instrument-serif",
-  display: "swap"
+  display: "swap",
+  preload: true,
 });
 
 const jetbrainsMono = localFont({
   src: "../fonts/JetBrainsMono-Variable.woff2",
   variable: "--font-jetbrains-mono",
-  display: "swap"
+  display: "swap",
+  preload: true,
 });
 
 export const viewport: Viewport = {
   themeColor: "#f4f2ee",
   width: "device-width",
-  initialScale: 1
+  initialScale: 1,
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://abhijith.dev";
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
+const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
 export const metadata: Metadata = {
-  title: "Abhijith C — Full-Stack & Frontend Developer",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Abhijith C — Full-Stack & Frontend Developer",
+    template: "%s | Abhijith C",
+  },
   description:
-    "Full-Stack and Frontend Developer experienced in building enterprise web applications, ERPs, and SPAs with React 19, Inertia.js 3.0, TypeScript, Tailwind CSS v4, and Laravel 13.",
-  metadataBase: new URL("https://abhijith.dev"),
+    "Full-Stack Developer in Kerala, India building enterprise ERPs & SPAs with React 19, Inertia.js, TypeScript, and Laravel. View engineering portfolio.",
+  applicationName: "Abhijith C Portfolio",
+  authors: [{ name: "Abhijith C", url: siteUrl }],
+  creator: "Abhijith C",
+  publisher: "Abhijith C",
+  keywords: [
+    "Abhijith C",
+    "Abhijith C developer",
+    "Full-stack developer Kerala",
+    "Laravel React developer India",
+    "Inertia.js developer",
+    "TypeScript developer India",
+    "Enterprise web applications",
+    "Full stack engineer Kochi",
+    "React 19 Laravel 13 developer",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: siteUrl,
+    siteName: "Abhijith C — Full-Stack Developer Portfolio",
     title: "Abhijith C — Full-Stack & Frontend Developer",
     description:
-      "Enterprise web applications, ERPs, and SPAs with React 19, Inertia.js 3.0, TypeScript, Tailwind CSS v4, and Laravel 13.",
+      "Full-Stack Developer in Kerala, India building enterprise ERPs & SPAs with React 19, Inertia.js, TypeScript, and Laravel.",
     images: [
       {
-        url: "/og.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Abhijith C — Full-Stack & Frontend Developer"
-      }
+        url: "/og.png",
+        width: 1917,
+        height: 983,
+        alt: "Abhijith C — Full-Stack & Frontend Developer",
+      },
     ],
-    locale: "en_US",
-    type: "website"
   },
   twitter: {
     card: "summary_large_image",
     title: "Abhijith C — Full-Stack & Frontend Developer",
-    description: "Enterprise web applications, ERPs, and SPAs.",
-    images: ["/og.jpg"]
+    description:
+      "Full-Stack Developer in Kerala, India building enterprise ERPs & SPAs with React 19, Inertia.js, TypeScript, and Laravel.",
+    images: ["/og.png"],
+    creator: "@abh1j1th207",
   },
   icons: {
     icon: [
       {
         url: "/favicon.png",
         media: "(prefers-color-scheme: light)",
-        type: "image/png"
+        type: "image/png",
       },
       {
         url: "/favicon-light.png",
         media: "(prefers-color-scheme: dark)",
-        type: "image/png"
-      }
+        type: "image/png",
+      },
     ],
     shortcut: "/favicon.png",
-    apple: "/favicon.png"
-  }
+    apple: "/favicon.png",
+  },
+  verification: {
+    google: googleVerification || undefined,
+  },
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html
-      lang="en"
+      lang="en-IN"
       className={`${interTight.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
     >
       <head>
+        <JsonLd siteUrl={siteUrl} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -114,13 +163,39 @@ export default function RootLayout({
                   else if (m.addListener) m.addListener(updateIcon);
                 } catch(e) {}
               })();
-            `
+            `,
           }}
         />
       </head>
       <body className="antialiased bg-[#f4f2ee] text-[#0d0d0d] selection:bg-[#0d0d0d] selection:text-[#f4f2ee]">
+        {/* Skip to Content accessible link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#0d0d0d] focus:text-[#f4f2ee] focus:rounded-md focus:shadow-lg focus:outline-none font-mono text-xs font-bold"
+        >
+          Skip to main content
+        </a>
+
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
         <Analytics />
+
+        {/* Optional Google Analytics Script via environment variable */}
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

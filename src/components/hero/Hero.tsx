@@ -175,6 +175,7 @@ export function Hero() {
   return (
     <section
       id="hero"
+      aria-labelledby="hero-title"
       ref={heroRef}
       className="relative min-h-[100svh] w-full flex flex-col justify-between pt-24 pb-8 overflow-hidden bg-[#f4f2ee]"
     >
@@ -231,8 +232,10 @@ export function Hero() {
             key={videoSrc}
             ref={videoRef}
             autoPlay
+            muted
             playsInline
-            preload="auto"
+            preload="metadata"
+            poster="/portrait-bust.webp"
             onPlay={() => {
               setIsPlaying(true);
               setHasEnded(false);
@@ -252,6 +255,7 @@ export function Hero() {
               src={videoSrc}
               type={videoSrc.includes(".webm") ? "video/webm" : "video/mp4"}
             />
+            <source src="/hero/hero.mp4" type="video/mp4" />
           </video>
 
           {/* Play/Pause Button */}
@@ -324,9 +328,11 @@ export function Hero() {
             <span>00 — Introduction</span>
           </div>
           <h1
+            id="hero-title"
             className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-[-0.045em] leading-[1.02] text-[#0d0d0d] hero-fade"
             style={{ "--i": 1 } as React.CSSProperties}
           >
+            <span className="sr-only">{PROFILE.name} — </span>
             {PROFILE.role.split("&")[0].trim()}{" "}
             <em className="font-serif italic font-normal text-[#77756f]">Developer.</em>
           </h1>

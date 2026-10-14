@@ -181,7 +181,8 @@ export function Achievements() {
 
   return (
     <section
-      id="achievements"
+      id="benchmarks"
+      aria-labelledby="benchmarks-heading"
       ref={containerRef}
       className="relative bg-[#f4f2ee] border-t border-[#0d0d0d]/10 overflow-hidden"
       style={{
@@ -189,6 +190,9 @@ export function Achievements() {
         height: isMobile ? "auto" : "360svh"
       }}
     >
+      {/* Anchor fallback for legacy #achievements links */}
+      <span id="achievements" className="sr-only" aria-hidden="true" />
+
       {/* Container: Relative with top clearance on mobile, sticky on desktop */}
       <div
         className={`w-full flex flex-col justify-between ${
@@ -204,7 +208,10 @@ export function Achievements() {
               <div className="section-tag mb-1">
                 <span>06 — Benchmarks</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0d0d0d]">
+              <h2
+                id="benchmarks-heading"
+                className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0d0d0d]"
+              >
                 Numbers &amp; verified <em>honours.</em>
               </h2>
             </div>

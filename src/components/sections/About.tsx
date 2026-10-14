@@ -73,6 +73,7 @@ export function About() {
   return (
     <section
       id="about"
+      aria-labelledby="about-heading"
       className="relative py-[var(--section-py)] bg-[#f4f2ee] border-t border-[#0d0d0d]/10 overflow-hidden"
     >
       <style>{`
@@ -129,6 +130,7 @@ export function About() {
             <span>01 — Identity</span>
           </div>
           <h2
+            id="about-heading"
             className="section-heading rv"
             style={{ "--i": 1 } as React.CSSProperties}
           >
@@ -169,7 +171,7 @@ export function About() {
               <a
                 href={PROFILE.github}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="btn-secondary text-xs"
               >
                 GitHub ↗
@@ -177,7 +179,7 @@ export function About() {
               <a
                 href={PROFILE.linkedin}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="btn-secondary text-xs"
               >
                 LinkedIn ↗
@@ -252,10 +254,10 @@ export function About() {
                       <div className="w-full h-full rounded-[14px] overflow-hidden relative bg-[#f4f2ee]">
                         <Image
                           src="/image.jpg"
-                          alt={PROFILE.name}
+                          alt="Portrait photo of Abhijith C, Full-Stack and Frontend Developer"
                           fill
+                          sizes="128px"
                           className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          unoptimized
                         />
                       </div>
                     </div>

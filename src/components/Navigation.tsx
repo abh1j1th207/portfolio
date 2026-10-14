@@ -26,7 +26,7 @@ export function Navigation() {
 
   // Track active section via IntersectionObserver with rootMargin: -45% 0px -50% 0px
   useEffect(() => {
-    const sectionIds = ["hero", "about", "skills", "work", "certifications", "experience", "achievements", "contact"];
+    const sectionIds = ["hero", "about", "skills", "work", "certifications", "experience", "benchmarks", "achievements", "contact"];
     const observers: IntersectionObserver[] = [];
 
     sectionIds.forEach((id) => {
@@ -37,7 +37,7 @@ export function Navigation() {
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              setActiveSection(id);
+              setActiveSection(id === "benchmarks" ? "achievements" : id);
             }
           });
         },
@@ -111,6 +111,7 @@ export function Navigation() {
         className="fixed top-0 left-0 h-[2px] bg-[#0d0d0d] z-50 pointer-events-none transition-all duration-75 ease-out"
         style={{ width: `${Math.min(100, Math.max(0, scrollProgress * 100))}%` }}
         role="progressbar"
+        aria-label="Page scroll progress"
         aria-valuenow={Math.round(scrollProgress * 100)}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -215,9 +216,10 @@ export function Navigation() {
         className={`fixed inset-0 z-50 bg-[#f4f2ee] flex flex-col justify-between p-[var(--gutter)] transition-all duration-500 ease-out md:hidden ${
           mobileMenuOpen
             ? "opacity-100 pointer-events-auto [clip-path:polygon(0_0,100%_0,100%_100%,0_100%)]"
-            : "opacity-0 pointer-events-none [clip-path:polygon(0_0,100%_0,100%_0,0_0)]"
+            : "opacity-0 pointer-events-none invisible [clip-path:polygon(0_0,100%_0,100%_0,0_0)]"
         }`}
         aria-hidden={!mobileMenuOpen}
+        inert={!mobileMenuOpen || undefined}
       >
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-2.5">

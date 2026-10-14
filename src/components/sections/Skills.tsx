@@ -11,6 +11,7 @@ export function Skills() {
   return (
     <section
       id="skills"
+      aria-labelledby="skills-heading"
       className="relative py-[var(--section-py)] bg-[#f4f2ee] border-t border-[#0d0d0d]/10"
     >
       <style>{`
@@ -32,6 +33,7 @@ export function Skills() {
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <h2
+              id="skills-heading"
               className="section-heading rv"
               style={{ "--i": 1 } as React.CSSProperties}
             >
@@ -94,7 +96,7 @@ export function Skills() {
                     "--i": staggerI,
                     aspectRatio: "1 / 1.15"
                   } as React.CSSProperties}
-                  aria-label={`${skill.name}, atomic number ${skill.atomicNumber}, family ${skill.family}`}
+                  aria-label={`${skill.atomicNumber} ${skill.symbol} ${skill.name} — ${skill.family}`}
                 >
                   {/* Top row: atomic number & tiny category indicator */}
                   <div className="flex items-center justify-between w-full">

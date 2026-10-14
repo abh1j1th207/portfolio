@@ -7,6 +7,7 @@ export function Certifications() {
   return (
     <section
       id="certifications"
+      aria-labelledby="certifications-heading"
       className="relative py-[var(--section-py)] bg-white border-y border-[#0d0d0d]/10"
     >
       <style>{`
@@ -49,6 +50,7 @@ export function Certifications() {
               <span>04 — Credentials</span>
             </div>
             <h2
+              id="certifications-heading"
               className="section-heading rv"
               style={{ "--i": 1 } as React.CSSProperties}
             >

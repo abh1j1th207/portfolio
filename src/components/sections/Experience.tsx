@@ -32,6 +32,7 @@ export function Experience() {
   return (
     <section
       id="experience"
+      aria-labelledby="experience-heading"
       ref={sectionRef}
       className="relative py-[var(--section-py)] bg-[#f4f2ee] border-t border-[#0d0d0d]/10"
     >
@@ -42,6 +43,7 @@ export function Experience() {
             <span>05 — Trajectory</span>
           </div>
           <h2
+            id="experience-heading"
             className="section-heading rv"
             style={{ "--i": 1 } as React.CSSProperties}
           >

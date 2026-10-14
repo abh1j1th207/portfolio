@@ -136,6 +136,7 @@ export function Work() {
   return (
     <section
       id="work"
+      aria-labelledby="work-heading"
       className="relative py-[var(--section-py)] bg-[#f4f2ee] border-t border-[#0d0d0d]/10"
     >
       <style>{`
@@ -167,6 +168,7 @@ export function Work() {
             <span>03 — Selected Work</span>
           </div>
           <h2
+            id="work-heading"
             className="section-heading rv"
             style={{ "--i": 1 } as React.CSSProperties}
           >
