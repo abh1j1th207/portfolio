@@ -6,7 +6,7 @@ interface JsonLdProps {
 }
 
 export function JsonLd({ siteUrl }: JsonLdProps) {
-  const baseUrl = siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://abhijith.dev";
+  const baseUrl = siteUrl || process.env.NEXT_PUBLIC_SITE_URL || "https://abhijithc.online";
 
   // Skills extracted directly from verified data
   const keySkills = SKILLS.map((s) => s.name);

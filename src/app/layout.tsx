@@ -44,7 +44,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://abhijith.dev";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://abhijithc.online";
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 

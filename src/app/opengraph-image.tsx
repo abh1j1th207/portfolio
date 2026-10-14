@@ -181,7 +181,7 @@ export default async function Image() {
               letterSpacing: "-0.01em",
             }}
           >
-            abhijith.dev
+            abhijithc.online
           </span>
         </div>
       </div>
