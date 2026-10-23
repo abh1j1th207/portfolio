@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PROFILE } from "@/lib/data";
+import { GoogleAdUnit } from "@/components/ui/GoogleAdUnit";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://abhijithc.online";
 const LAST_UPDATED = "October 23, 2026";
@@ -581,6 +582,16 @@ export default function PrivacyPolicyPage() {
             </div>
           </section>
         </article>
+
+        {/* AdSense Unit */}
+        <div className="pt-8">
+          <GoogleAdUnit
+            client="ca-pub-4049435921186193"
+            slot="1554546740"
+            format="auto"
+            responsive={true}
+          />
+        </div>
 
         {/* Bottom Navigation */}
         <div className="mt-16 pt-8 border-t border-[#0d0d0d]/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#77756f]">
