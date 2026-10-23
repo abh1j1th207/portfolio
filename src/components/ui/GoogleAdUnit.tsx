@@ -6,6 +6,7 @@ interface GoogleAdUnitProps {
   slot?: string;
   client?: string;
   format?: string;
+  layout?: string;
   responsive?: boolean;
   className?: string;
   label?: boolean;
@@ -21,6 +22,7 @@ export function GoogleAdUnit({
   slot = "1554546740",
   client = "ca-pub-4049435921186193",
   format = "auto",
+  layout,
   responsive = true,
   className = "",
   label = true,
@@ -57,10 +59,16 @@ export function GoogleAdUnit({
         <ins
           ref={adRef}
           className="adsbygoogle"
-          style={{ display: "block", minWidth: "250px", width: "100%" }}
+          style={{
+            display: "block",
+            textAlign: layout === "in-article" ? "center" : undefined,
+            minWidth: "250px",
+            width: "100%",
+          }}
           data-ad-client={client}
           data-ad-slot={slot}
           data-ad-format={format}
+          {...(layout ? { "data-ad-layout": layout } : {})}
           data-full-width-responsive={responsive ? "true" : "false"}
         />
       </div>

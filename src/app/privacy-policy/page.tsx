@@ -187,6 +187,16 @@ export default function PrivacyPolicyPage() {
             </div>
           </section>
 
+          {/* Native In-Article AdSense Unit */}
+          <div className="py-2">
+            <GoogleAdUnit
+              client="ca-pub-4049435921186193"
+              slot="3394242025"
+              layout="in-article"
+              format="fluid"
+            />
+          </div>
+
           {/* Section 3: Google AdSense, Advertising & Cookies */}
           <section id="adsense-cookies" className="scroll-mt-24 space-y-4">
             <div className="p-6 rounded-2xl bg-[#0d0d0d] text-[#f4f2ee] space-y-3">
