@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { PROFILE } from "@/lib/data";
 import { scrollToTarget } from "@/lib/scroll";
 
@@ -175,7 +176,13 @@ export function Contact() {
             © {CURRENT_YEAR} {PROFILE.name}. All rights reserved.
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center gap-6">
+            <Link
+              href="/privacy-policy"
+              className="text-[#0d0d0d] hover:underline font-medium"
+            >
+              Privacy Policy
+            </Link>
             <span>Built with Next.js 16 · TypeScript · Tailwind CSS v4</span>
             <button
               onClick={() => scrollToTarget("#hero")}
