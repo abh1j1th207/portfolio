@@ -47,6 +47,8 @@ export const viewport: Viewport = {
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://abhijithc.online";
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const adsenseId = process.env.NEXT_PUBLIC_ADSENSE_ID || "ca-pub-4049435921186193";
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -145,6 +147,13 @@ export default function RootLayout({
         <JsonLd siteUrl={siteUrl} />
         <link rel="preconnect" href="https://va.vercel-scripts.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://va.vercel-scripts.com" />
+        {adsenseId && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseId}`}
+            crossOrigin="anonymous"
+          />
+        )}
         <script
           dangerouslySetInnerHTML={{
             __html: `
